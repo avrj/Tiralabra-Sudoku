@@ -1,7 +1,7 @@
 package domain;
 
 /**
- *
+ * Represents the header column in doubly linked list
  */
 public class Header extends Node {
     /**
@@ -10,20 +10,21 @@ public class Header extends Node {
     private int size;
 
     /**
-     *
+     * Name of header
      */
     private int name;
 
     /**
-     *
+     * Initializes header with name 0
      */
     public Header() {
         this(0);
     }
 
     /**
+     * Initializes header with name
      *
-     * @param name
+     * @param name Name of header
      */
     public Header(int name) {
         this.name = name;
@@ -33,15 +34,16 @@ public class Header extends Node {
 
     /**
      *
-     * @return
+     * @return Name of header
      */
     public int getName() {
         return name;
     }
 
     /**
+     * Sets the name of header
      *
-     * @param name
+     * @param name Name of header
      */
     public void setName(int name) {
         this.name = name;
@@ -49,7 +51,7 @@ public class Header extends Node {
 
     /**
      *
-     * @return
+     * @return Count of nodes linked to header
      */
     public int getSize() {
         return size;
@@ -57,7 +59,7 @@ public class Header extends Node {
 
     /**
      *
-     * @param size
+     * @param size Sets the count of linked nodes
      */
     public void setSize(int size) {
         this.size = size;
