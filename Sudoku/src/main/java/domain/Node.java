@@ -59,6 +59,7 @@ public class Node {
     }
 
     /**
+     * Returns the header of this node
      *
      * @return Header of this node
      */
@@ -76,6 +77,7 @@ public class Node {
     }
 
     /**
+     * Returns the down neigbour of this node
      *
      * @return The down neighbour node
      */
@@ -84,6 +86,7 @@ public class Node {
     }
 
     /**
+     * Returns the right neighbour of this node
      *
      * @return The right neighbour node
      */
@@ -110,6 +113,7 @@ public class Node {
     }
 
     /**
+     * Returns the upper neighbour of this node
      *
      * @return The upper neighbour node
      */

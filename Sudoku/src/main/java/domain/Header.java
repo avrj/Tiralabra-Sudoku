@@ -33,6 +33,7 @@ public class Header extends Node {
     }
 
     /**
+     * Returns the name of header
      *
      * @return Name of header
      */
@@ -50,6 +51,7 @@ public class Header extends Node {
     }
 
     /**
+     * Returns the count of nodes linked to header
      *
      * @return Count of nodes linked to header
      */
@@ -58,8 +60,9 @@ public class Header extends Node {
     }
 
     /**
+     * Sets the count of linked nodes
      *
-     * @param size Sets the count of linked nodes
+     * @param size Count of linked nodes
      */
     public void setSize(int size) {
         this.size = size;
