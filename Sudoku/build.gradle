@@ -47,7 +47,11 @@ dependencies {
 cobertura {
     coverageFormats = ['html', 'xml']
     coverageIgnoreTrivial = true
-    coverageReportDir = new File("$buildDir/reports/cobertura")
+    coverageReportDir = new File("$projectDir/../dokumentaatio/cobertura")
+}
+
+javadoc {
+    destinationDir = new File("$projectDir/../dokumentaatio/javadoc")
 }
 
 test.finalizedBy(project.tasks.cobertura)
