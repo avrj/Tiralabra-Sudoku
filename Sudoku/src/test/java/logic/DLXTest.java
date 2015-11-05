@@ -43,4 +43,20 @@ public class DLXTest {
 
         assertEquals(headerRight, rootHeader.getRight());
     }
+
+    @Test
+    public void uncoveringLeftColumnSetsRightColumnsLeftToLeftColumn() {
+        dlx.coverColumn(headerLeft);
+        dlx.uncoverColumn(headerLeft);
+
+        assertEquals(headerLeft, headerRight.getLeft());
+    }
+
+    @Test
+    public void uncoveringLeftColumnSetsRootColumnsRightToLeftColumn() {
+        dlx.coverColumn(headerLeft);
+        dlx.uncoverColumn(headerLeft);
+
+        assertEquals(headerLeft, rootHeader.getRight());
+    }
 }
