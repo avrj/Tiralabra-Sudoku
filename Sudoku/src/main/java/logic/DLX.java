@@ -45,7 +45,7 @@ public class DLX {
         while(!node1.equals(headerColumn)) {
             node2 = node1.getLeft();
 
-            while(!node1.equals(node2)) {
+            while(!node2.equals(node1)) {
                 node2.getUp().setDown(node2);
                 node2.getDown().setUp(node2);
                 node2.getHeader().setSize(node2.getHeader().getSize() + 1);
@@ -55,7 +55,7 @@ public class DLX {
             node1 = node1.getUp();
         }
 
-        node2.getLeft().setRight(node2);
-        node2.getRight().setLeft(node2);
+        headerColumn.getLeft().setRight(headerColumn);
+        headerColumn.getRight().setLeft(headerColumn);
     }
 }
