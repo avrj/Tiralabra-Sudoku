@@ -5,7 +5,7 @@ package domain;
  */
 public class Header extends Node {
     /**
-     *
+     * Number of nodes linked in to the column header
      */
     private int size;
 
