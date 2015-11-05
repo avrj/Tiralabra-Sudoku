@@ -10,7 +10,7 @@ public class DLX {
     /**
      * Covers one column/removes constraint by header using DLX cover method
      *
-     * @param headerColumn Header to cover
+     * @param headerColumn Header of column to cover
      */
     public void coverColumn(Header headerColumn) {
         headerColumn.getLeft().setRight(headerColumn.getRight());
@@ -22,7 +22,7 @@ public class DLX {
         while(!node1.equals(headerColumn)) {
             node2 = node1.getRight();
 
-            while(node1.equals(node2)) {
+            while(!node2.equals(node1)) {
                 node2.getUp().setDown(node2.getDown());
                 node2.getDown().setUp(node2.getUp());
                 node2.getHeader().setSize(node2.getHeader().getSize() - 1);
@@ -36,7 +36,7 @@ public class DLX {
     /**
      * Uncovers one column/reverse constraint by header using DLX uncover method
      *
-     * @param headerColumn Header to uncover
+     * @param headerColumn Header of column to uncover
      */
     public void uncoverColumn(Header headerColumn) {
         Node node1 = headerColumn.getUp();
@@ -57,5 +57,29 @@ public class DLX {
 
         headerColumn.getLeft().setRight(headerColumn);
         headerColumn.getRight().setLeft(headerColumn);
+    }
+
+    /**
+     * Finds the column with smallest size
+     *
+     * @param rootHeader The root header
+     * @return Column with smallest size
+     */
+    public Header findColumnWithSmallestSize(Header rootHeader) {
+            int smallestSize = Integer.MAX_VALUE;
+
+            Header columnWithSmallestSize = null;
+            Header column = (Header) rootHeader.getRight();
+
+            while (!column.equals(rootHeader)) {
+                if (column.getSize() < smallestSize) {
+                    smallestSize = column.getSize();
+                    columnWithSmallestSize = column;
+                }
+
+                column = (Header) column.getRight();
+            }
+
+            return columnWithSmallestSize;
     }
 }
