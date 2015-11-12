@@ -1,6 +1,6 @@
 package logic;
 
-import domain.Header;
+import domain.ColumnNode;
 import domain.Node;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,7 +10,7 @@ import static org.junit.Assert.assertTrue;
 
 public class DLXTest {
     private DLX dlx;
-    private Header rootHeader, headerLeft, headerRight;
+    private ColumnNode rootColumnNode, columnNodeLeft, columnNodeRight;
     private Node nodeOfHeaderLeft, nodeOfHeaderRight;
 
     public DLXTest() {
@@ -25,93 +25,86 @@ public class DLXTest {
     }
 
     private void initializeDLX() {
-        rootHeader = new Header();
-        headerLeft = new Header();
-        headerRight = new Header();
+        rootColumnNode = new ColumnNode();
+        columnNodeLeft = new ColumnNode();
+        columnNodeRight = new ColumnNode();
 
-        rootHeader.setRight(headerLeft);
-        rootHeader.setLeft(headerRight);
+        rootColumnNode.setRight(columnNodeLeft);
+        rootColumnNode.setLeft(columnNodeRight);
 
-        headerLeft.setLeft(rootHeader);
-        headerLeft.setRight(headerRight);
-        headerRight.setLeft(headerLeft);
-        headerRight.setRight(rootHeader);
+        columnNodeLeft.setLeft(rootColumnNode);
+        columnNodeLeft.setRight(columnNodeRight);
+        columnNodeRight.setLeft(columnNodeLeft);
+        columnNodeRight.setRight(rootColumnNode);
 
         nodeOfHeaderLeft = new Node(1);
-        nodeOfHeaderLeft.setHeader(headerLeft);
-        headerLeft.setSize(headerLeft.getSize() + 1);
+        nodeOfHeaderLeft.setColumnNode(columnNodeLeft);
+        columnNodeLeft.setSize(columnNodeLeft.getSize() + 1);
         nodeOfHeaderRight = new Node(1);
-        nodeOfHeaderRight.setHeader(headerRight);
-        headerRight.setSize(headerRight.getSize() + 1);
+        nodeOfHeaderRight.setColumnNode(columnNodeRight);
+        columnNodeRight.setSize(columnNodeRight.getSize() + 1);
 
-        nodeOfHeaderLeft.setUp(headerLeft);
-        nodeOfHeaderRight.setUp(headerRight);
+        nodeOfHeaderLeft.setUp(columnNodeLeft);
+        nodeOfHeaderRight.setUp(columnNodeRight);
 
-        headerLeft.setDown(nodeOfHeaderLeft);
-        headerRight.setDown(nodeOfHeaderRight);
+        columnNodeLeft.setDown(nodeOfHeaderLeft);
+        columnNodeRight.setDown(nodeOfHeaderRight);
 
         nodeOfHeaderLeft.setRight(nodeOfHeaderRight);
         nodeOfHeaderRight.setLeft(nodeOfHeaderLeft);
 
         nodeOfHeaderRight.setRight(nodeOfHeaderLeft);
 
-        nodeOfHeaderLeft.setDown(headerLeft);
-        nodeOfHeaderRight.setDown(headerRight);
+        nodeOfHeaderLeft.setDown(columnNodeLeft);
+        nodeOfHeaderRight.setDown(columnNodeRight);
 
         /* Commented out because causes endless loop
-        headerLeft.setUp(nodeOfHeaderLeft);
-        headerRight.setUp(nodeOfHeaderRight);*/
+        columnNodeLeft.setUp(nodeOfHeaderLeft);
+        columnNodeRight.setUp(nodeOfHeaderRight);*/
     }
 
     @Test
     public void coveringLeftColumnSetsRightColumnSizeToZero() {
-        dlx.coverColumn(headerLeft);
+        dlx.coverColumn(columnNodeLeft);
 
-        assertEquals(0, headerRight.getSize());
+        assertEquals(0, columnNodeRight.getSize());
     }
 
     @Test
     public void coveringRightColumnSetsLeftColumnSizeToZero() {
-        dlx.coverColumn(headerRight);
+        dlx.coverColumn(columnNodeRight);
 
-        assertEquals(0, headerLeft.getSize());
+        assertEquals(0, columnNodeLeft.getSize());
     }
 
 
     @Test
     public void coveringLeftColumnSetsRightColumnsLeftToRootColumn() {
-        dlx.coverColumn(headerLeft);
+        dlx.coverColumn(columnNodeLeft);
 
-        assertEquals(rootHeader, headerRight.getLeft());
+        assertEquals(rootColumnNode, columnNodeRight.getLeft());
     }
 
     @Test
     public void coveringLeftColumnSetsRootColumnsRightToRightColumn() {
-        dlx.coverColumn(headerLeft);
+        dlx.coverColumn(columnNodeLeft);
 
-        assertEquals(headerRight, rootHeader.getRight());
+        assertEquals(columnNodeRight, rootColumnNode.getRight());
     }
 
     @Test
     public void uncoveringLeftColumnSetsRightColumnsLeftToLeftColumn() {
-        dlx.coverColumn(headerLeft);
-        dlx.uncoverColumn(headerLeft);
+        dlx.coverColumn(columnNodeLeft);
+        dlx.uncoverColumn(columnNodeLeft);
 
-        assertEquals(headerLeft, headerRight.getLeft());
+        assertEquals(columnNodeLeft, columnNodeRight.getLeft());
     }
 
     @Test
     public void uncoveringLeftColumnSetsRootColumnsRightToLeftColumn() {
-        dlx.coverColumn(headerLeft);
-        dlx.uncoverColumn(headerLeft);
+        dlx.coverColumn(columnNodeLeft);
+        dlx.uncoverColumn(columnNodeLeft);
 
-        assertEquals(headerLeft, rootHeader.getRight());
-    }
-
-    @Test
-    public void headerWithSmallestSizeIsReturned() {
-        dlx.coverColumn(headerLeft);
-
-        assertEquals(headerRight, dlx.findColumnWithSmallestSize(rootHeader));
+        assertEquals(columnNodeLeft, rootColumnNode.getRight());
     }
 }
