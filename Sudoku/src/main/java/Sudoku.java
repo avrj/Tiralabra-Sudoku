@@ -1,55 +1,65 @@
-import domain.Header;
+import domain.ColumnNode;
 import logic.DLX;
 
 public class Sudoku {
     public static void main(String[] args) {
-        Header rootHeader = new Header();
-        Header header_A = new Header();
-        Header header_B = new Header();
+        ColumnNode rootColumnNode = new ColumnNode();
+        ColumnNode columnNode_A = new ColumnNode();
+        ColumnNode columnNode_B = new ColumnNode();
 
-        rootHeader.setRight(header_A);
+        rootColumnNode.setRight(columnNode_A);
 
-        header_A.setLeft(rootHeader);
-        header_A.setRight(header_B);
-        header_B.setLeft(header_A);
+        columnNode_A.setLeft(rootColumnNode);
+        columnNode_A.setRight(columnNode_B);
+        columnNode_B.setLeft(columnNode_A);
 
-        System.out.println("header_A");
-        System.out.println("Left: " + header_A.getLeft().equals(header_A));
-        System.out.println("Right: " + header_A.getRight().equals(header_A));
-        System.out.println("Up: " + header_A.getUp().equals(header_A));
-        System.out.println("Down: " + header_A.getDown().equals(header_A));
-        System.out.println("Header: " + header_A.getHeader().equals(header_A));
+        System.out.println("columnNode_A");
+        System.out.println("Left: " + columnNode_A.getLeft().equals(columnNode_A));
+        System.out.println("Right: " + columnNode_A.getRight().equals(columnNode_A));
+        System.out.println("Up: " + columnNode_A.getUp().equals(columnNode_A));
+        System.out.println("Down: " + columnNode_A.getDown().equals(columnNode_A));
+        System.out.println("ColumnNode: " + columnNode_A.getColumnNode().equals(columnNode_A));
 
         System.out.println("");
-        System.out.println("header_B");
-        System.out.println("Left: " + header_B.getLeft().equals(header_B));
-        System.out.println("Right: " + header_B.getRight().equals(header_B));
-        System.out.println("Up: " + header_B.getUp().equals(header_B));
-        System.out.println("Down: " + header_B.getDown().equals(header_B));
-        System.out.println("Header: " + header_B.getHeader().equals(header_B));
+        System.out.println("columnNode_B");
+        System.out.println("Left: " + columnNode_B.getLeft().equals(columnNode_B));
+        System.out.println("Right: " + columnNode_B.getRight().equals(columnNode_B));
+        System.out.println("Up: " + columnNode_B.getUp().equals(columnNode_B));
+        System.out.println("Down: " + columnNode_B.getDown().equals(columnNode_B));
+        System.out.println("ColumnNode: " + columnNode_B.getColumnNode().equals(columnNode_B));
 
         DLX dlx = new DLX();
-        dlx.coverColumn(header_A);
+        dlx.coverColumn(columnNode_A);
         System.out.println("");
-        System.out.println("Covering header_A");
+        System.out.println("Covering columnNode_A");
         System.out.println("");
 
-        System.out.println("header_A");
-        System.out.println("Left: " + header_A.getLeft().equals(header_A));
-        System.out.println("Right: " + header_A.getRight().equals(header_A));
-        System.out.println("Up: " + header_A.getUp().equals(header_A));
-        System.out.println("Down: " + header_A.getDown().equals(header_A));
-        System.out.println("Header: " + header_A.getHeader().equals(header_A));
+        System.out.println("columnNode_A");
+        System.out.println("Left: " + columnNode_A.getLeft().equals(columnNode_A));
+        System.out.println("Right: " + columnNode_A.getRight().equals(columnNode_A));
+        System.out.println("Up: " + columnNode_A.getUp().equals(columnNode_A));
+        System.out.println("Down: " + columnNode_A.getDown().equals(columnNode_A));
+        System.out.println("ColumnNode: " + columnNode_A.getColumnNode().equals(columnNode_A));
 
         System.out.println("");
-        System.out.println("header_B");
-        System.out.println("Left: " + header_B.getLeft().equals(header_B));
-        System.out.println("Right: " + header_B.getRight().equals(header_B));
-        System.out.println("Up: " + header_B.getUp().equals(header_B));
-        System.out.println("Down: " + header_B.getDown().equals(header_B));
-        System.out.println("Header: " + header_B.getHeader().equals(header_B));
+        System.out.println("columnNode_B");
+        System.out.println("Left: " + columnNode_B.getLeft().equals(columnNode_B));
+        System.out.println("Right: " + columnNode_B.getRight().equals(columnNode_B));
+        System.out.println("Up: " + columnNode_B.getUp().equals(columnNode_B));
+        System.out.println("Down: " + columnNode_B.getDown().equals(columnNode_B));
+        System.out.println("ColumnNode: " + columnNode_B.getColumnNode().equals(columnNode_B));
 
-        System.out.println(header_B.getLeft().equals(rootHeader));
-        System.out.println(rootHeader.getRight().equals(header_B));
+        System.out.println(columnNode_B.getLeft().equals(rootColumnNode));
+        System.out.println(rootColumnNode.getRight().equals(columnNode_B));
+
+        dlx = new DLX();
+
+        dlx.buildMatrix(new int[][]{
+                {1, 1, 1, 0},
+                {1, 0, 1, 0},
+                {0, 1, 0, 0},
+                {0, 0, 0, 1},
+                {1, 1, 1, 1}
+        });
     }
 }
