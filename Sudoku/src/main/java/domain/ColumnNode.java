@@ -3,7 +3,7 @@ package domain;
 /**
  * Represents the header column in doubly linked list
  */
-public class Header extends Node {
+public class ColumnNode extends Node {
     /**
      * Number of nodes linked in to the column header
      */
@@ -17,7 +17,7 @@ public class Header extends Node {
     /**
      * Initializes header with name 0
      */
-    public Header() {
+    public ColumnNode() {
         this(0);
     }
 
@@ -26,10 +26,10 @@ public class Header extends Node {
      *
      * @param name Name of header
      */
-    public Header(int name) {
+    public ColumnNode(int name) {
         this.name = name;
         this.size = 0;
-        this.setHeader(this);
+        this.setColumnNode(this);
     }
 
     /**
