@@ -10,8 +10,7 @@ import static org.junit.Assert.assertTrue;
 
 public class DLXTest {
     private DLX dlx;
-    private ColumnNode rootColumnNode, columnNodeLeft, columnNodeRight;
-    private Node nodeOfHeaderLeft, nodeOfHeaderRight;
+    private int[][] sudokuGrid;
 
     public DLXTest() {
 
@@ -19,92 +18,104 @@ public class DLXTest {
 
     @Before
     public void setUp() {
-        dlx = new DLX();
+        sudokuGrid = new int[][]{
+                {3, 6, 1, 8, 9, 5, 4, 7, 0},
+                {9, 0, 2, 7, 3, 4, 8, 1, 6},
+                {7, 4, 8, 1, 0, 2, 3, 9, 5},
+                {5, 7, 3, 0, 2, 6, 1, 4, 8},
+                {8, 2, 9, 5, 4, 1, 0, 3, 7},
+                {0, 1, 6, 3, 8, 7, 5, 2, 9},
+                {6, 9, 7, 4, 1, 8, 2, 5, 3},
+                {1, 8, 5, 2, 7, 3, 9, 0, 4},
+                {2, 3, 4, 6, 5, 9, 7, 8, 1}
+        };
 
-        initializeDLX();
-    }
-
-    private void initializeDLX() {
-        rootColumnNode = new ColumnNode();
-        columnNodeLeft = new ColumnNode();
-        columnNodeRight = new ColumnNode();
-
-        rootColumnNode.setRight(columnNodeLeft);
-        rootColumnNode.setLeft(columnNodeRight);
-
-        columnNodeLeft.setLeft(rootColumnNode);
-        columnNodeLeft.setRight(columnNodeRight);
-        columnNodeRight.setLeft(columnNodeLeft);
-        columnNodeRight.setRight(rootColumnNode);
-
-        nodeOfHeaderLeft = new Node(1);
-        nodeOfHeaderLeft.setColumnNode(columnNodeLeft);
-        columnNodeLeft.setSize(columnNodeLeft.getSize() + 1);
-        nodeOfHeaderRight = new Node(1);
-        nodeOfHeaderRight.setColumnNode(columnNodeRight);
-        columnNodeRight.setSize(columnNodeRight.getSize() + 1);
-
-        nodeOfHeaderLeft.setUp(columnNodeLeft);
-        nodeOfHeaderRight.setUp(columnNodeRight);
-
-        columnNodeLeft.setDown(nodeOfHeaderLeft);
-        columnNodeRight.setDown(nodeOfHeaderRight);
-
-        nodeOfHeaderLeft.setRight(nodeOfHeaderRight);
-        nodeOfHeaderRight.setLeft(nodeOfHeaderLeft);
-
-        nodeOfHeaderRight.setRight(nodeOfHeaderLeft);
-
-        nodeOfHeaderLeft.setDown(columnNodeLeft);
-        nodeOfHeaderRight.setDown(columnNodeRight);
-
-        /* Commented out because causes endless loop
-        columnNodeLeft.setUp(nodeOfHeaderLeft);
-        columnNodeRight.setUp(nodeOfHeaderRight);*/
+        dlx = new DLX(sudokuGrid);
     }
 
     @Test
-    public void coveringLeftColumnSetsRightColumnSizeToZero() {
-        dlx.coverColumn(columnNodeLeft);
+    public void testDoubleLinkedList() {
+        byte[][] matrix = new byte[][]{
+                {1, 0, 1},
+                {0, 1, 0},
+                {0, 1, 0}
+        };
 
-        assertEquals(0, columnNodeRight.getSize());
+        ColumnNode rootNode = dlx.createDoubleLinkedLists(matrix);
+
+        assertEquals(rootNode.getLeft(), rootNode.getRight().getRight().getRight());
+
+        assertEquals(1, rootNode.getRight().getHeader().getSize());
+        assertEquals(2, rootNode.getRight().getRight().getHeader().getSize());
+        assertEquals(1, rootNode.getRight().getRight().getRight().getHeader().getSize());
+
+        assertEquals(rootNode.getRight(), rootNode.getRight().getHeader());
+        assertEquals(rootNode.getRight().getRight(), rootNode.getRight().getRight().getHeader());
+        assertEquals(rootNode.getRight().getRight().getRight(), rootNode.getRight().getRight().getRight().getHeader());
     }
 
     @Test
-    public void coveringRightColumnSetsLeftColumnSizeToZero() {
-        dlx.coverColumn(columnNodeRight);
+    public void testCoverColumn() {
+        byte[][] matrix = new byte[][]{
+                {1, 0, 1},
+                {0, 1, 0},
+                {0, 1, 0}
+        };
 
-        assertEquals(0, columnNodeLeft.getSize());
-    }
+        ColumnNode rootNode = dlx.createDoubleLinkedLists(matrix);
+
+        assertEquals(1, rootNode.getRight().getHeader().getSize());
+
+        ColumnNode coveredColumn = rootNode.getRight().getHeader();
+        dlx.coverColumn(rootNode.getRight().getHeader());
+
+        assertEquals(2, rootNode.getRight().getHeader().getSize());
 
 
-    @Test
-    public void coveringLeftColumnSetsRightColumnsLeftToRootColumn() {
-        dlx.coverColumn(columnNodeLeft);
+        assertEquals(0, rootNode.getRight().getRight().getHeader().getSize());
 
-        assertEquals(rootColumnNode, columnNodeRight.getLeft());
-    }
+        dlx.uncoverColumn(coveredColumn);
 
-    @Test
-    public void coveringLeftColumnSetsRootColumnsRightToRightColumn() {
-        dlx.coverColumn(columnNodeLeft);
-
-        assertEquals(columnNodeRight, rootColumnNode.getRight());
-    }
-
-    @Test
-    public void uncoveringLeftColumnSetsRightColumnsLeftToLeftColumn() {
-        dlx.coverColumn(columnNodeLeft);
-        dlx.uncoverColumn(columnNodeLeft);
-
-        assertEquals(columnNodeLeft, columnNodeRight.getLeft());
+        assertEquals(1, rootNode.getRight().getHeader().getSize());
     }
 
     @Test
-    public void uncoveringLeftColumnSetsRootColumnsRightToLeftColumn() {
-        dlx.coverColumn(columnNodeLeft);
-        dlx.uncoverColumn(columnNodeLeft);
+    public void testUncoverColumn() {
+        byte[][] matrix = new byte[][]{
+                {1, 0, 1},
+                {0, 1, 0},
+                {0, 1, 0}
+        };
 
-        assertEquals(columnNodeLeft, rootColumnNode.getRight());
+        ColumnNode rootNode = dlx.createDoubleLinkedLists(matrix);
+
+        assertEquals(1, rootNode.getRight().getHeader().getSize());
+
+        ColumnNode coveredColumn = rootNode.getRight().getHeader();
+        dlx.coverColumn(rootNode.getRight().getHeader());
+
+        assertEquals(2, rootNode.getRight().getHeader().getSize());
+
+
+        assertEquals(0, rootNode.getRight().getRight().getHeader().getSize());
+
+        dlx.uncoverColumn(coveredColumn);
+
+        assertEquals(1, rootNode.getRight().getHeader().getSize());
+    }
+
+    @Test
+    public void testColumnWithSmallestSizeIsFound() {
+        byte[][] matrix = new byte[][]{
+                {1, 0, 1},
+                {0, 1, 1},
+                {0, 1, 1}
+        };
+
+        ColumnNode rootNode = dlx.createDoubleLinkedLists(matrix);
+
+        ColumnNode columnNode = dlx.findColumnWithSmallestSize();
+
+        assertEquals(1, columnNode.getSize());
     }
 }
