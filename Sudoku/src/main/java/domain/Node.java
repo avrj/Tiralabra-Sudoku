@@ -10,70 +10,24 @@ public class Node {
     private Node left, right, up, down;
 
     /**
-     * The columnNode of this node
+     * The header of this node
      */
-    private ColumnNode columnNode;
+    private ColumnNode header;
 
     /**
-     * The row of this node
+     * Returns the header of this node
+     * @return ColumnNode header
      */
-    private int row;
-
-    /**
-     * Initializes node with row -1 and null columnNode
-     */
-    public Node() {
-        this(-1 , null);
+    public ColumnNode getHeader() {
+        return this.header;
     }
 
     /**
-     * Initializes node with row
-     * @param row The row of this node
+     * Sets the header of this node
+     * @param columnNode Header
      */
-    public Node(int row) {
-        this(row, null);
-    }
-
-    /**
-     * Initializes node with row and columnNode
-     *
-     * @param row The row of this node
-     * @param columnNode The columnNode of this node
-     */
-    public Node(int row, ColumnNode columnNode) {
-        this.left = this;
-        this.right = this;
-        this.up = this;
-        this.down = this;
-        this.row = row;
-        this.columnNode = columnNode;
-    }
-
-    /**
-     * Sets the row
-     *
-     * @param row The row of this node
-     */
-    public void setRow(int row) {
-        this.row = row;
-    }
-
-    /**
-     * Returns the columnNode of this node
-     *
-     * @return ColumnNode of this node
-     */
-    public ColumnNode getColumnNode() {
-        return this.columnNode;
-    }
-
-    /**
-     * Sets the columnNode
-     *
-     * @param columnNode The columnNode of this node
-     */
-    public void setColumnNode(ColumnNode columnNode) {
-        this.columnNode = columnNode;
+    public void setHead(ColumnNode columnNode) {
+        this.header = columnNode;
     }
 
     /**
@@ -146,9 +100,5 @@ public class Node {
      */
     public Node getLeft() {
         return left;
-    }
-
-    public int getRow() {
-        return row;
     }
 }

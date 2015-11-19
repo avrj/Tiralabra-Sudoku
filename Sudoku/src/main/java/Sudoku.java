@@ -1,65 +1,43 @@
 import domain.ColumnNode;
 import logic.DLX;
+import logic.SudokuSolver;
 
 public class Sudoku {
     public static void main(String[] args) {
-        ColumnNode rootColumnNode = new ColumnNode();
-        ColumnNode columnNode_A = new ColumnNode();
-        ColumnNode columnNode_B = new ColumnNode();
-
-        rootColumnNode.setRight(columnNode_A);
-
-        columnNode_A.setLeft(rootColumnNode);
-        columnNode_A.setRight(columnNode_B);
-        columnNode_B.setLeft(columnNode_A);
-
-        System.out.println("columnNode_A");
-        System.out.println("Left: " + columnNode_A.getLeft().equals(columnNode_A));
-        System.out.println("Right: " + columnNode_A.getRight().equals(columnNode_A));
-        System.out.println("Up: " + columnNode_A.getUp().equals(columnNode_A));
-        System.out.println("Down: " + columnNode_A.getDown().equals(columnNode_A));
-        System.out.println("ColumnNode: " + columnNode_A.getColumnNode().equals(columnNode_A));
-
-        System.out.println("");
-        System.out.println("columnNode_B");
-        System.out.println("Left: " + columnNode_B.getLeft().equals(columnNode_B));
-        System.out.println("Right: " + columnNode_B.getRight().equals(columnNode_B));
-        System.out.println("Up: " + columnNode_B.getUp().equals(columnNode_B));
-        System.out.println("Down: " + columnNode_B.getDown().equals(columnNode_B));
-        System.out.println("ColumnNode: " + columnNode_B.getColumnNode().equals(columnNode_B));
-
-        DLX dlx = new DLX();
-        dlx.coverColumn(columnNode_A);
-        System.out.println("");
-        System.out.println("Covering columnNode_A");
-        System.out.println("");
-
-        System.out.println("columnNode_A");
-        System.out.println("Left: " + columnNode_A.getLeft().equals(columnNode_A));
-        System.out.println("Right: " + columnNode_A.getRight().equals(columnNode_A));
-        System.out.println("Up: " + columnNode_A.getUp().equals(columnNode_A));
-        System.out.println("Down: " + columnNode_A.getDown().equals(columnNode_A));
-        System.out.println("ColumnNode: " + columnNode_A.getColumnNode().equals(columnNode_A));
-
-        System.out.println("");
-        System.out.println("columnNode_B");
-        System.out.println("Left: " + columnNode_B.getLeft().equals(columnNode_B));
-        System.out.println("Right: " + columnNode_B.getRight().equals(columnNode_B));
-        System.out.println("Up: " + columnNode_B.getUp().equals(columnNode_B));
-        System.out.println("Down: " + columnNode_B.getDown().equals(columnNode_B));
-        System.out.println("ColumnNode: " + columnNode_B.getColumnNode().equals(columnNode_B));
-
-        System.out.println(columnNode_B.getLeft().equals(rootColumnNode));
-        System.out.println(rootColumnNode.getRight().equals(columnNode_B));
-
-        dlx = new DLX();
-
-        dlx.buildMatrix(new int[][]{
-                {1, 1, 1, 0},
-                {1, 0, 1, 0},
-                {0, 1, 0, 0},
-                {0, 0, 0, 1},
-                {1, 1, 1, 1}
+        SudokuSolver sudoku = new SudokuSolver(new int[][]{
+                {3, 6, 1, 8, 9, 5, 4, 7, 0},
+                {9, 0, 2, 7, 3, 4, 8, 1, 6},
+                {7, 4, 8, 1, 0, 2, 3, 9, 5},
+                {5, 7, 3, 0, 2, 6, 1, 4, 8},
+                {8, 2, 9, 5, 4, 1, 0, 3, 7},
+                {0, 1, 6, 3, 8, 7, 5, 2, 9},
+                {6, 9, 7, 4, 1, 8, 2, 5, 3},
+                {1, 8, 5, 2, 7, 3, 9, 0, 4},
+                {2, 3, 4, 6, 5, 9, 7, 8, 1}
         });
+
+        int grid[][] = sudoku.getGrid();
+
+        for(int i = 0; i < grid[0].length; i++) {
+            for(int j = 0; j < grid.length; j++) {
+                System.out.print(grid[i][j] + " ");
+            }
+
+            System.out.println();
+        }
+
+        System.out.println();
+
+        sudoku.solve();
+
+        grid = sudoku.getGrid();
+
+        for(int i = 0; i < grid[0].length; i++) {
+            for(int j = 0; j < grid.length; j++) {
+                System.out.print(grid[i][j] + " ");
+            }
+
+            System.out.println();
+        }
     }
 }

@@ -7,48 +7,7 @@ public class ColumnNode extends Node {
     /**
      * Number of nodes linked in to the column header
      */
-    private int size;
-
-    /**
-     * Name of header
-     */
-    private int name;
-
-    /**
-     * Initializes header with name 0
-     */
-    public ColumnNode() {
-        this(0);
-    }
-
-    /**
-     * Initializes header with name
-     *
-     * @param name Name of header
-     */
-    public ColumnNode(int name) {
-        this.name = name;
-        this.size = 0;
-        this.setColumnNode(this);
-    }
-
-    /**
-     * Returns the name of header
-     *
-     * @return Name of header
-     */
-    public int getName() {
-        return name;
-    }
-
-    /**
-     * Sets the name of header
-     *
-     * @param name Name of header
-     */
-    public void setName(int name) {
-        this.name = name;
-    }
+    private int size = 0;
 
     /**
      * Returns the count of nodes linked to header
@@ -66,5 +25,68 @@ public class ColumnNode extends Node {
      */
     public void setSize(int size) {
         this.size = size;
+    }
+
+    /**
+     * Which constraint this node applies to
+     */
+    private int constraint = -1;
+
+    /**
+     * The number of this column
+     */
+    private int number = -1;
+
+    /**
+     * Position in matrix
+     */
+    private int position = -1;
+
+    /**
+     * Returns the position
+     * @return Position
+     */
+    public int getPosition() {
+        return position;
+    }
+
+    /**
+     * Sets the position
+     * @param position The position of this column
+     */
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    /**
+     * Returns the number of this column
+     * @return Number of this column
+     */
+    public int getNumber() {
+        return number;
+    }
+
+    /**
+     * Sets the number of this column
+     * @param number Column number
+     */
+    public void setNumber(int number) {
+        this.number = number;
+    }
+
+    /**
+     * Returns the constraint of this column
+     * @return Constraint of this column
+     */
+    public int getConstraint() {
+        return constraint;
+    }
+
+    /**
+     * Sets the constraint of this column
+     * @param constraint Constraint of this column
+     */
+    public void setConstraint(int constraint) {
+        this.constraint = constraint;
     }
 }

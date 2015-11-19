@@ -8,141 +8,311 @@ import java.util.*;
  * Methods to implement the Dancing Links algorithm
  */
 public class DLX {
+    private int gridSize, gridN;
+    private int[][] grid;
+
     /**
-     * Stack of solutions
+     * List of solutions
      */
-    private Stack solutions;
+    private ArrayList solutions = new ArrayList();
 
     /**
      * Root node is the starting point of the algorithm
      */
     private ColumnNode rootNode;
 
-    /**
-     * An array of columns in matrix
-     */
-    private ArrayList<ColumnNode> columns;
 
     /**
-     * An array of rows in matrix
+     * Initialize the algorithm with given grid
+     * @param grid Sudoku grid
      */
-    private ArrayList<Node> rows;
+    public DLX(int[][] grid) {
+        this.gridSize = grid[0].length / 3;
+        this.gridN = grid[0].length;
 
-    /**
-     * Total count of solutions
-     */
-    private int totalSolutions;
+        this.grid = grid;
 
-
-    /**
-     * Creates the root node and sets total solutions to zero
-     */
-    public DLX() {
-        solutions = new Stack<>();
-        columns = new ArrayList<>();
-        rows = new ArrayList<>();
-
-        rootNode = new ColumnNode(0);
-        totalSolutions = 0;
+        rootNode = null;
     }
 
     /**
-     * Builds the sparse matrix from array of 0's and 1's
-     * @param input Two-dimensional array of 0's and 1's
+     * Start of the algorithm
+     * @param initialMatrix Sudoku grid
      */
-    public void buildMatrix(int[][] input) {
-        int columnCount = input[0].length;
-        int rowCount = input.length;
+    public void run(int[][] initialMatrix) {
+        byte[][] matrix = createMatrix(initialMatrix);
 
-        buildSkeleton(rowCount, columnCount);
+        ColumnNode doubleLinkedList = createDoubleLinkedLists(matrix);
 
-        for (int i = 0; i < input.length; i++) {
-            appendRow(input[i], i);
-        }
+        search(0);
     }
 
     /**
-     * Gets the solutions
-     * @return An array of solutions
+     * Creates the sparse matrix from sudoku grid
+     * @param initialMatrix Sudoku grid
+     * @return Sparse matrix
      */
-    public ArrayList<Integer> getSolutions() {
-        if (solutions.size() == 0) return null;
+    public byte[][] createMatrix(int[][] initialMatrix) {
+        int[][] clues = null;
 
-        ArrayList<Integer> finalSolutions = new ArrayList<>();
+        ArrayList cluesList = new ArrayList();
 
-        Iterator iter = solutions.iterator();
+        int counter = 0;
 
-        while (iter.hasNext()){
-            finalSolutions.add(((Node) iter.next()).getRow());
-        }
-
-        return finalSolutions;
-    }
-
-    /**
-     * Creates an empty matrix
-     *
-     * @param rowCount Row count
-     * @param columnCount Column count
-     */
-    public void buildSkeleton(int rowCount, int columnCount) {
-        for (int i = 0; i < columnCount; i++) {
-            ColumnNode newColumnNode = new ColumnNode();
-            newColumnNode.setLeft(rootNode.getLeft());
-            newColumnNode.setRight(rootNode);
-            newColumnNode.setRight(rootNode);
-
-            rootNode.getLeft().setRight(newColumnNode);
-            rootNode.setLeft(newColumnNode);
-
-            columns.add(newColumnNode);
-        }
-
-        for (int i = 0; i < rowCount; i++) {
-            rows.add(new Node());
-        }
-    }
-
-    /**
-     * Appends one row to the matrix
-     *
-     * @param rowInput Integer array representing the row (0's and 1's)
-     * @param row The number of the row
-     */
-    public void appendRow(int[] rowInput, int row) {
-        Node node1 = null, node2 = null;
-
-        for (int i = 0; i < rowInput.length; i++) {
-            if (rowInput[i] == 1) {
-                if (node1 != null) {
-                    node2 = new Node(row);
-
-                    node2.setLeft(node1.getLeft());
-                    node2.setRight(node1);
-                    node1.getLeft().setRight(node2);
-                    node1.setLeft(node2);
-
-                    node2.setDown(columns.get(i));
-                    node2.setUp(columns.get(i).getUp());
-
-                    columns.get(i).getUp().setDown(node2);
-                    columns.get(i).setUp(node2);
-
-                    node2.setColumnNode(columns.get(i));
-                    node2.getColumnNode().setSize(node2.getColumnNode().getSize() + 1);
-                } else {
-                    node1 = new Node(row);
-
-                    node1.setColumnNode(columns.get(i));
-                    node1.getColumnNode().setSize(node1.getColumnNode().getSize() + 1);
-                    node1.setDown(columns.get(i));
-                    node1.setUp(columns.get(i).getDown());
-
-                    columns.get(i).getUp().setDown(node1);
-                    columns.get(i).setUp(node1);
-
-                    rows.set(row, node1);
+        for (int row = 0; row < gridN; row++) {
+            for (int column = 0; column < gridN; column++) {
+                if (initialMatrix[row][column] > 0) {
+                    cluesList.add(new int[]{initialMatrix[row][column], row, column});
+                    counter++;
                 }
+            }
+        }
+
+        clues = new int[counter][];
+
+        for (int i = 0; i < counter; i++) {
+            clues[i] = (int[]) cluesList.get(i);
+        }
+
+        byte[][] matrix = new byte[gridN * gridN * gridN][4 * gridN * gridN];
+
+        for (int d = 0; d < gridN; d++) {
+            for (int r = 0; r < gridN; r++) {
+                for (int c = 0; c < gridN; c++) {
+                    if (!filled(d, r, c, clues)) {
+                        int rowIndex = c + (gridN * r) + (gridN * gridN * d);
+
+                        int blockIndex = ((c / gridSize) + ((r / gridSize) * gridSize));
+                        int colIndexRow = 3 * gridN * d + r;
+                        int colIndexCol = 3 * gridN * d + gridN + c;
+                        int colIndexBlock = 3 * gridN * d + 2 * gridN + blockIndex;
+                        int colIndexSimple = 3 * gridN * gridN + (c + gridN * r);
+
+                        matrix[rowIndex][colIndexRow] = 1;
+                        matrix[rowIndex][colIndexCol] = 1;
+                        matrix[rowIndex][colIndexBlock] = 1;
+                        matrix[rowIndex][colIndexSimple] = 1;
+                    }
+                }
+            }
+        }
+        return matrix;
+    }
+
+    /**
+     * Checks if the cell to be filled is already filled with a digit
+     * @param digit Digit
+     * @param row Row
+     * @param col Column
+     * @param prefill Clues
+     * @return True if already filled
+     */
+    public boolean filled(int digit, int row, int col, int[][] prefill) {
+        boolean filled = false;
+
+        if (prefill != null) {
+            for (int i = 0; i < prefill.length; i++) {
+                int d = prefill[i][0] - 1;
+                int r = prefill[i][1];
+                int c = prefill[i][2];
+
+                int blockStartIndexCol = (c / gridSize) * gridSize;
+                int blockEndIndexCol = blockStartIndexCol + gridSize;
+                int blockStartIndexRow = (r / gridSize) * gridSize;
+                int blockEndIndexRow = blockStartIndexRow + gridSize;
+
+                if (d != digit && row == r && col == c) {
+                    filled = true;
+                } else if ((d == digit) && (row == r || col == c) && !(row == r && col == c)) {
+                    filled = true;
+                } else if ((d == digit) && (row > blockStartIndexRow) && (row < blockEndIndexRow) && (col > blockStartIndexCol) && (col < blockEndIndexCol) && !(row == r && col == c)) {
+                    filled = true;
+                }
+            }
+        }
+        return filled;
+    }
+
+    /**
+     * Creates doubly linked list from sparse matrix
+     * @param matrix Sparse matrix
+     * @return The root node of the list
+     */
+    public ColumnNode createDoubleLinkedLists(byte[][] matrix) {
+        rootNode = new ColumnNode();
+
+        ColumnNode curColumn = rootNode;
+
+        for (int col = 0; col < matrix[0].length; col++) {
+            curColumn.setRight(new ColumnNode());
+            curColumn.getRight().setLeft(curColumn);
+            curColumn = (ColumnNode) curColumn.getRight();
+            if (col < 3 * gridN * gridN) {
+
+                int digit = (col / (3 * gridN)) + 1;
+                curColumn.setNumber(digit);
+
+                int index = col - (digit - 1) * 3 * gridN;
+
+                if (index < gridN) {
+                    curColumn.setConstraint(0);
+                    curColumn.setPosition(index);
+                } else if (index < 2 * gridN) {
+                    curColumn.setConstraint(1);
+                    curColumn.setPosition(index - gridN);
+                } else {
+                    curColumn.setConstraint(2);
+                    curColumn.setPosition(index - 2 * gridN);
+                }
+            } else {
+                curColumn.setConstraint(3);
+                curColumn.setPosition(col - 3 * gridN * gridN);
+            }
+            curColumn.setHead(curColumn);
+        }
+
+        curColumn.setRight(rootNode);
+
+        rootNode.setLeft(curColumn);
+
+        for (int row = 0; row < matrix.length; row++) {
+
+            curColumn = (ColumnNode) rootNode.getRight();
+
+            Node lastCreatedElement = null;
+            Node firstElement = null;
+
+            for (int col = 0; col < matrix[row].length; col++) {
+                if (matrix[row][col] == 1) {
+                    Node colElement = curColumn;
+
+                    while (colElement.getDown() != null) {
+                        colElement = colElement.getDown();
+                    }
+
+                    colElement.setDown(new Node());
+
+                    if (firstElement == null) {
+                        firstElement = colElement.getDown();
+                    }
+
+                    colElement.getDown().setUp(colElement);
+                    colElement.getDown().setLeft(lastCreatedElement);
+                    colElement.getDown().setHead(curColumn);
+
+                    if (lastCreatedElement != null) {
+                        colElement.getDown().getLeft().setRight(colElement.getDown());
+                    }
+
+                    lastCreatedElement = colElement.getDown();
+
+                    curColumn.setSize(curColumn.getSize() + 1);
+                }
+
+                curColumn = (ColumnNode) curColumn.getRight();
+            }
+
+            if (lastCreatedElement != null) {
+                lastCreatedElement.setRight(firstElement);
+                firstElement.setLeft(lastCreatedElement);
+            }
+        }
+
+        curColumn = (ColumnNode) rootNode.getRight();
+
+        for (int i = 0; i < matrix[0].length; i++) {
+            Node colElement = curColumn;
+            while (colElement.getDown() != null) {
+                colElement = colElement.getDown();
+            }
+            colElement.setDown(curColumn);
+            curColumn.setUp(colElement);
+            curColumn = (ColumnNode) curColumn.getRight();
+        }
+
+        return rootNode;
+    }
+
+    /**
+     * Searching algorithm
+     * @param k Depth
+     */
+    public void search(int k) {
+        if (rootNode.getRight() == rootNode) {
+            mapSolvedToGrid();
+            return;
+        }
+
+        ColumnNode c = findColumnWithSmallestSize();
+
+        coverColumn(c);
+
+        Node r = c.getDown();
+
+        while (r != c) {
+            if (k < solutions.size()) {
+                solutions.remove(k);
+            }
+
+            solutions.add(k, r);
+
+            Node j = r.getRight();
+
+            while (j != r) {
+                coverColumn(j.getHeader());
+                j = j.getRight();
+            }
+
+            search(k + 1);
+
+            Node r2 = (Node) solutions.get(k);
+
+            Node j2 = r2.getLeft();
+
+            while (j2 != r2) {
+                uncoverColumn(j2.getHeader());
+                j2 = j2.getLeft();
+            }
+
+            r = r.getDown();
+        }
+
+        uncoverColumn(c);
+    }
+
+    /**
+     * Maps the solved linked list to the grid
+     */
+    public void mapSolvedToGrid() {
+        int[] result = new int[gridN * gridN];
+
+        for (Iterator it = solutions.iterator(); it.hasNext(); ) {
+            int number = -1;
+            int cellNo = -1;
+
+            Node element = (Node) it.next();
+
+            Node next = element;
+
+            do {
+                if (next.getHeader().getConstraint() == 0) {
+                    number = next.getHeader().getNumber();
+                } else if (next.getHeader().getConstraint() == 3) {
+                    cellNo = next.getHeader().getPosition();
+                }
+
+                next = next.getRight();
+            } while (element != next);
+
+            result[cellNo] = number;
+        }
+
+        int resultCounter = 0;
+
+        for (int row = 0; row < gridN; row++) {
+            for (int column = 0; column < gridN; column++) {
+                grid[row][column] = result[resultCounter];
+                resultCounter++;
             }
         }
     }
@@ -156,20 +326,19 @@ public class DLX {
         columnNode.getLeft().setRight(columnNode.getRight());
         columnNode.getRight().setLeft(columnNode.getLeft());
 
-        Node node1 = columnNode.getDown();
-        Node node2 = null;
+        Node curRow = columnNode.getDown();
 
-        while(!node1.equals(columnNode)) {
-            node2 = node1.getRight();
+        while(!curRow.equals(columnNode)) {
+            Node curNode = curRow.getRight();
 
-            while(!node2.equals(node1)) {
-                node2.getUp().setDown(node2.getDown());
-                node2.getDown().setUp(node2.getUp());
-                node2.getColumnNode().setSize(node2.getColumnNode().getSize() - 1);
-                node2 = node2.getRight();
+            while(!curNode.equals(curRow)) {
+                curNode.getUp().setDown(curNode.getDown());
+                curNode.getDown().setUp(curNode.getUp());
+                curNode.getHeader().setSize(curNode.getHeader().getSize() - 1);
+                curNode = curNode.getRight();
             }
 
-            node1 = node1.getDown();
+            curRow = curRow.getDown();
         }
     }
 
@@ -179,20 +348,19 @@ public class DLX {
      * @param columnNode ColumnNode of column to uncover
      */
     public void uncoverColumn(ColumnNode columnNode) {
-        Node node1 = columnNode.getUp();
-        Node node2 = null;
+        Node curRow = columnNode.getUp();
 
-        while(!node1.equals(columnNode)) {
-            node2 = node1.getLeft();
+        while(!curRow.equals(columnNode)) {
+            Node curNode = curRow.getLeft();
 
-            while(!node2.equals(node1)) {
-                node2.getUp().setDown(node2);
-                node2.getDown().setUp(node2);
-                node2.getColumnNode().setSize(node2.getColumnNode().getSize() + 1);
-                node2 = node2.getLeft();
+            while(!curNode.equals(curRow)) {
+                curNode.getUp().setDown(curNode);
+                curNode.getDown().setUp(curNode);
+                curNode.getHeader().setSize(curNode.getHeader().getSize() + 1);
+                curNode = curNode.getLeft();
             }
 
-            node1 = node1.getUp();
+            curRow = curRow.getUp();
         }
 
         columnNode.getLeft().setRight(columnNode);
@@ -200,132 +368,21 @@ public class DLX {
     }
 
     /**
-     * Selects one row to force solution
-     *
-     * @param index The index in rows[] of the row to select
-     */
-    public void selectRow(int index) {
-        Node node = rows.get(index);
-
-        solutions.push(node);
-
-        do {
-            coverColumn(node.getColumnNode());
-            node = node.getRight();
-        } while (node != rows.get(index));
-    }
-
-    /**
-     * Unselects the last row pushed to the solutions stack
-     */
-    public void unselectRow() {
-        Node node = ((Node) solutions.pop()).getLeft();
-
-        do {
-            uncoverColumn(node.getColumnNode());
-
-            node = node.getLeft();
-        } while (node != rows.get(node.getRow()));
-
-        uncoverColumn(node.getColumnNode());
-    }
-
-    /**
-     * Selects multiple rows
-     * @param index Indexes in rows[] of the rows to select
-     */
-    public void selectMultipleRows(int[] index) {
-        for (int i = 0; i < index.length; i++) {
-            selectRow(index[i]);
-        }
-    }
-
-    /**
-     * Unselects all rows pushed to stack
-     */
-    public void unselectAllRows() {
-        while (solutions.size() > 0) {
-            unselectRow();
-        }
-    }
-
-    /**
-     * Solves the exact cover problem
-     */
-    public void solve() {
-        solutions.clear();
-
-        totalSolutions = 0;
-
-        solveRecurse();
-        unselectAllRows();
-    }
-
-    /**
-     * Original Knuth's Dancing Links algorithm
-     */
-    public void solveRecurse() {
-        if (rootNode.getRight() == rootNode) {
-            totalSolutions++;
-            return;
-        }
-
-        ColumnNode column = findColumnWithSmallestSize();
-
-        if (column.getSize() == 0) return; // not a good solution
-
-        coverColumn(column);
-
-        Node node1 = column.getDown();
-        Node node2 = null;
-
-        while (node1 != column) {
-            solutions.push(node1);
-
-            node2 = node1.getRight();
-
-            while (node2 != node1) {
-                coverColumn(node2.getColumnNode());
-                node2 = node2.getRight();
-            }
-
-            solveRecurse();
-
-            node1 = (Node) solutions.pop();
-
-            column = node1.getColumnNode();
-            node2 = node1.getLeft();
-
-            while (node2 != node1) {
-                uncoverColumn(node2.getColumnNode());
-                node2 = node2.getLeft();
-            }
-
-            node1 = node1.getDown();
-        }
-        
-        uncoverColumn(column);
-    }
-
-    /**
-     *  Finds the column with least nodes
-     * @return Column header with least nodes
+     * Finds the column with smallest set of nodes
+     * @return The column with least nodes
      */
     public ColumnNode findColumnWithSmallestSize() {
-        int smallestSize = Integer.MAX_VALUE;
+        ColumnNode rightOfRoot = (ColumnNode) rootNode.getRight();
+        ColumnNode smallest = rightOfRoot;
 
-        ColumnNode columnWithSmallestSize = null;
-        ColumnNode column = (ColumnNode) rootNode.getRight();
+        while (rightOfRoot.getRight() != rootNode) {
+            rightOfRoot = (ColumnNode) rightOfRoot.getRight();
 
-        while (!column.equals(rootNode)) {
-            if (column.getSize() < smallestSize) {
-                smallestSize = column.getSize();
-                columnWithSmallestSize = column;
+            if (rightOfRoot.getSize() < smallest.getSize()) {
+                smallest = rightOfRoot;
             }
-
-            column = (ColumnNode) column.getRight();
         }
 
-        return columnWithSmallestSize;
+        return smallest;
     }
 }
