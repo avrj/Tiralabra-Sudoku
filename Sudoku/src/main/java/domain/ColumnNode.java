@@ -5,6 +5,21 @@ package domain;
  */
 public class ColumnNode extends Node {
     /**
+     * Which constraint this node applies to
+     */
+    private int constraint = -1;
+
+    /**
+     * The number of this column
+     */
+    private int number = -1;
+
+    /**
+     * Position in matrix
+     */
+    private int position = -1;
+
+    /**
      * Number of nodes linked in to the column header
      */
     private int size = 0;
@@ -28,22 +43,8 @@ public class ColumnNode extends Node {
     }
 
     /**
-     * Which constraint this node applies to
-     */
-    private int constraint = -1;
-
-    /**
-     * The number of this column
-     */
-    private int number = -1;
-
-    /**
-     * Position in matrix
-     */
-    private int position = -1;
-
-    /**
      * Returns the position
+     *
      * @return Position
      */
     public int getPosition() {
@@ -52,6 +53,7 @@ public class ColumnNode extends Node {
 
     /**
      * Sets the position
+     *
      * @param position The position of this column
      */
     public void setPosition(int position) {
@@ -60,6 +62,7 @@ public class ColumnNode extends Node {
 
     /**
      * Returns the number of this column
+     *
      * @return Number of this column
      */
     public int getNumber() {
@@ -68,6 +71,7 @@ public class ColumnNode extends Node {
 
     /**
      * Sets the number of this column
+     *
      * @param number Column number
      */
     public void setNumber(int number) {
@@ -76,6 +80,7 @@ public class ColumnNode extends Node {
 
     /**
      * Returns the constraint of this column
+     *
      * @return Constraint of this column
      */
     public int getConstraint() {
@@ -84,6 +89,7 @@ public class ColumnNode extends Node {
 
     /**
      * Sets the constraint of this column
+     *
      * @param constraint Constraint of this column
      */
     public void setConstraint(int constraint) {

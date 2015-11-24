@@ -16,6 +16,7 @@ public class Node {
 
     /**
      * Returns the header of this node
+     *
      * @return ColumnNode header
      */
     public ColumnNode getHeader() {
@@ -24,6 +25,7 @@ public class Node {
 
     /**
      * Sets the header of this node
+     *
      * @param columnNode Header
      */
     public void setHead(ColumnNode columnNode) {
