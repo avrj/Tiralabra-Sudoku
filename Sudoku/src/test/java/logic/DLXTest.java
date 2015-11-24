@@ -1,16 +1,15 @@
 package logic;
 
 import domain.ColumnNode;
-import domain.Node;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class DLXTest {
     private DLX dlx;
-    private int[][] sudokuGrid;
+    private int[][] dummyGrid;
+    private byte[][] testMatrix;
 
     public DLXTest() {
 
@@ -18,104 +17,107 @@ public class DLXTest {
 
     @Before
     public void setUp() {
-        sudokuGrid = new int[][]{
-                {3, 6, 1, 8, 9, 5, 4, 7, 0},
-                {9, 0, 2, 7, 3, 4, 8, 1, 6},
-                {7, 4, 8, 1, 0, 2, 3, 9, 5},
-                {5, 7, 3, 0, 2, 6, 1, 4, 8},
-                {8, 2, 9, 5, 4, 1, 0, 3, 7},
-                {0, 1, 6, 3, 8, 7, 5, 2, 9},
-                {6, 9, 7, 4, 1, 8, 2, 5, 3},
-                {1, 8, 5, 2, 7, 3, 9, 0, 4},
-                {2, 3, 4, 6, 5, 9, 7, 8, 1}
+        dummyGrid = new int[][]{
+                {0}
         };
 
-        dlx = new DLX(sudokuGrid);
+        testMatrix = new byte[][]{
+                {1, 0},
+                {0, 0},
+        };
+
+        dlx = new DLX(dummyGrid);
     }
 
     @Test
-    public void testDoubleLinkedList() {
-        byte[][] matrix = new byte[][]{
-                {1, 0, 1},
-                {0, 1, 0},
-                {0, 1, 0}
-        };
-
-        ColumnNode rootNode = dlx.createDoubleLinkedLists(matrix);
-
-        assertEquals(rootNode.getLeft(), rootNode.getRight().getRight().getRight());
+    public void doublyLinkedListRootNodesRightColumnSizeIsOne() {
+        ColumnNode rootNode = dlx.createDoublyLinkedLists(testMatrix);
 
         assertEquals(1, rootNode.getRight().getHeader().getSize());
-        assertEquals(2, rootNode.getRight().getRight().getHeader().getSize());
-        assertEquals(1, rootNode.getRight().getRight().getRight().getHeader().getSize());
-
-        assertEquals(rootNode.getRight(), rootNode.getRight().getHeader());
-        assertEquals(rootNode.getRight().getRight(), rootNode.getRight().getRight().getHeader());
-        assertEquals(rootNode.getRight().getRight().getRight(), rootNode.getRight().getRight().getRight().getHeader());
     }
 
     @Test
-    public void testCoverColumn() {
-        byte[][] matrix = new byte[][]{
-                {1, 0, 1},
-                {0, 1, 0},
-                {0, 1, 0}
-        };
-
-        ColumnNode rootNode = dlx.createDoubleLinkedLists(matrix);
-
-        assertEquals(1, rootNode.getRight().getHeader().getSize());
-
-        ColumnNode coveredColumn = rootNode.getRight().getHeader();
-        dlx.coverColumn(rootNode.getRight().getHeader());
-
-        assertEquals(2, rootNode.getRight().getHeader().getSize());
-
+    public void doublyLinkedListRootNodesRightRightColumnSizeIsZero() {
+        ColumnNode rootNode = dlx.createDoublyLinkedLists(testMatrix);
 
         assertEquals(0, rootNode.getRight().getRight().getHeader().getSize());
+    }
 
-        dlx.uncoverColumn(coveredColumn);
 
-        assertEquals(1, rootNode.getRight().getHeader().getSize());
+    @Test
+    public void doublyLinkedListRootNodesLeftIsRootNodesRightsRightNode() {
+        ColumnNode rootNode = dlx.createDoublyLinkedLists(testMatrix);
+
+        assertEquals(rootNode.getLeft(), rootNode.getRight().getRight());
     }
 
     @Test
-    public void testUncoverColumn() {
-        byte[][] matrix = new byte[][]{
-                {1, 0, 1},
-                {0, 1, 0},
-                {0, 1, 0}
-        };
+    public void doublyLinkedListRootNodesRightBottomNodeEqualsRootNodesRightColumnHeader() {
+        ColumnNode rootNode = dlx.createDoublyLinkedLists(testMatrix);
 
-        ColumnNode rootNode = dlx.createDoubleLinkedLists(matrix);
+        assertEquals(rootNode.getRight().getHeader(), rootNode.getRight().getDown().getDown());
+    }
 
-        assertEquals(1, rootNode.getRight().getHeader().getSize());
+    @Test
+    public void doublyLinkedListRootNodesRightRightBottomNodeEqualsRootNodesRightRightColumnHeader() {
+        ColumnNode rootNode = dlx.createDoublyLinkedLists(testMatrix);
 
-        ColumnNode coveredColumn = rootNode.getRight().getHeader();
+        assertEquals(rootNode.getRight().getRight().getHeader(), rootNode.getRight().getRight().getDown().getDown());
+    }
+
+    @Test
+    public void afterCoveringRootNodesRightColumnTheNewRootNodesRightColumnIsTheRightOfTheCoveredColumn() {
+        ColumnNode rootNode = dlx.createDoublyLinkedLists(testMatrix);
+
+        ColumnNode rootNodesRightRightColumn = rootNode.getRight().getRight().getHeader();
         dlx.coverColumn(rootNode.getRight().getHeader());
 
-        assertEquals(2, rootNode.getRight().getHeader().getSize());
+        assertEquals(rootNodesRightRightColumn, rootNode.getRight().getHeader());
 
-
-        assertEquals(0, rootNode.getRight().getRight().getHeader().getSize());
-
-        dlx.uncoverColumn(coveredColumn);
-
-        assertEquals(1, rootNode.getRight().getHeader().getSize());
     }
 
     @Test
-    public void testColumnWithSmallestSizeIsFound() {
-        byte[][] matrix = new byte[][]{
-                {1, 0, 1},
-                {0, 1, 1},
-                {0, 1, 1}
-        };
+    public void afterCoveringRootNodesRightRightColumnTheNewRootNodesLeftColumnIsTheLeftOfTheCoveredColumn() {
+        ColumnNode rootNode = dlx.createDoublyLinkedLists(testMatrix);
 
-        ColumnNode rootNode = dlx.createDoubleLinkedLists(matrix);
+        ColumnNode rootNodesRightColumn = rootNode.getRight().getHeader();
+        dlx.coverColumn(rootNode.getRight().getRight().getHeader());
+
+        assertEquals(rootNodesRightColumn, rootNode.getLeft().getHeader());
+
+    }
+
+    @Test
+    public void afterCoveringAndUncoveringRootNodesRightColumnTheRootNodesRightColumnisTheCoveredColumn() {
+        ColumnNode rootNode = dlx.createDoublyLinkedLists(testMatrix);
+
+        ColumnNode coveredColumn = rootNode.getRight().getHeader();
+
+        dlx.coverColumn(coveredColumn);
+        dlx.uncoverColumn(coveredColumn);
+
+        assertEquals(coveredColumn, rootNode.getRight().getHeader());
+    }
+
+    @Test
+    public void afterCoveringAndUncoveringRootNodesRightRightColumnTheRootNodesLeftColumnisTheCoveredColumn() {
+        ColumnNode rootNode = dlx.createDoublyLinkedLists(testMatrix);
+
+        ColumnNode coveredColumn = rootNode.getRight().getRight().getHeader();
+
+        dlx.coverColumn(coveredColumn);
+        dlx.uncoverColumn(coveredColumn);
+
+        assertEquals(coveredColumn, rootNode.getLeft().getHeader());
+    }
+
+
+    @Test
+    public void columnWithSmallestSizeIsFound() {
+        ColumnNode rootNode = dlx.createDoublyLinkedLists(testMatrix);
 
         ColumnNode columnNode = dlx.findColumnWithSmallestSize();
 
-        assertEquals(1, columnNode.getSize());
+        assertEquals(0, columnNode.getSize());
     }
 }
