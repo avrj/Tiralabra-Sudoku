@@ -7,50 +7,54 @@ public class SudokuSolver {
     /**
      * Size of the sudoku (normally 3)
      */
-    private int SIZE;
+    private int size;
 
     /**
      * The square of the size (normally 9)
      */
-    private int N;
+    private int sizeSquare;
 
     /**
      * Sudoku grid
      */
-    private int Grid[][];
+    private int grid[][];
 
     /**
      * Calls the solving method of DLX algorithm
      */
     public void solve() {
-        DLX solver = new DLX(Grid);
-        solver.run(Grid);
+        DLX solver = new DLX(grid);
+
+        solver.run(grid);
     }
 
     /**
      * Initializes the solver with sudoku grid and sets the size and size square parameters
+     *
      * @param gridi Sudoku grid
      */
-    public SudokuSolver (int[][] gridi) {
-        SIZE = gridi[0].length / 3;
-        N = gridi[0].length;
+    public SudokuSolver(int[][] grid) {
+        size = grid[0].length / 3;
+        sizeSquare = grid[0].length;
 
-        Grid = gridi;
+        this.grid = grid;
     }
 
     /**
      * Returns the sudoku grid
+     *
      * @return Grid
      */
     public int[][] getGrid() {
-        return Grid;
+        return grid;
     }
 
     /**
      * Prints text with given amount of spaces
+     *
      * @param text  The text to print
      * @param width The total width of the text and spaces
-     * @return  Fixed width text
+     * @return Fixed width text
      */
     public String printFixedWidth(String text, int width) {
         String spaces = "";
@@ -65,12 +69,13 @@ public class SudokuSolver {
 
     /**
      * Prints the grid in human readable format
+     *
      * @return Human readable format of the grid array
      */
     public String print() {
-        int digits = (int) Math.floor(Math.log(N) / Math.log(10)) + 1;
+        int digits = (int) Math.floor(Math.log(sizeSquare) / Math.log(10)) + 1;
 
-        int lineLength = (digits + 1) * N + 2 * SIZE - 3;
+        int lineLength = (digits + 1) * sizeSquare + 2 * size - 3;
 
         StringBuffer line = new StringBuffer();
 
@@ -81,11 +86,11 @@ public class SudokuSolver {
 
         String output = "";
 
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                output += printFixedWidth(String.valueOf(Grid[i][j]), digits);
+        for (int i = 0; i < sizeSquare; i++) {
+            for (int j = 0; j < sizeSquare; j++) {
+                output += printFixedWidth(String.valueOf(grid[i][j]), digits);
 
-                if ((j < N - 1) && ((j + 1) % SIZE == 0)) {
+                if ((j < sizeSquare - 1) && ((j + 1) % size == 0)) {
                     output += " |";
                 }
 
@@ -94,7 +99,7 @@ public class SudokuSolver {
 
             output += "\r\n";
 
-            if ((i < N - 1) && ((i + 1) % SIZE == 0)) {
+            if ((i < sizeSquare - 1) && ((i + 1) % size == 0)) {
                 output += line.toString() + "\r\n";
             }
         }

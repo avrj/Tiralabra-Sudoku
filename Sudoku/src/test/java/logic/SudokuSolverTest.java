@@ -6,9 +6,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-/**
- * Created by avrj on 18.11.2015.
- */
 public class SudokuSolverTest {
     @Before
     public void setUp() {

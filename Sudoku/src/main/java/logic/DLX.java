@@ -2,6 +2,7 @@ package logic;
 
 import domain.ColumnNode;
 import domain.Node;
+
 import java.util.*;
 
 /**
@@ -24,6 +25,7 @@ public class DLX {
 
     /**
      * Initialize the algorithm with given grid
+     *
      * @param grid Sudoku grid
      */
     public DLX(int[][] grid) {
@@ -37,22 +39,24 @@ public class DLX {
 
     /**
      * Start of the algorithm
+     *
      * @param initialMatrix Sudoku grid
      */
     public void run(int[][] initialMatrix) {
-        byte[][] matrix = createMatrix(initialMatrix);
+        byte[][] matrix = createMatrix(gridN, gridSize, initialMatrix);
 
-        ColumnNode doubleLinkedList = createDoubleLinkedLists(matrix);
+        ColumnNode doublyLinkedList = createDoublyLinkedLists(matrix);
 
         search(0);
     }
 
     /**
      * Creates the sparse matrix from sudoku grid
+     *
      * @param initialMatrix Sudoku grid
      * @return Sparse matrix
      */
-    public byte[][] createMatrix(int[][] initialMatrix) {
+    public byte[][] createMatrix(int gridN, int gridSize, int[][] initialMatrix) {
         int[][] clues = null;
 
         ArrayList cluesList = new ArrayList();
@@ -79,7 +83,7 @@ public class DLX {
         for (int d = 0; d < gridN; d++) {
             for (int r = 0; r < gridN; r++) {
                 for (int c = 0; c < gridN; c++) {
-                    if (!filled(d, r, c, clues)) {
+                    if (!filled(gridN, gridSize, d, r, c, clues)) {
                         int rowIndex = c + (gridN * r) + (gridN * gridN * d);
 
                         int blockIndex = ((c / gridSize) + ((r / gridSize) * gridSize));
@@ -101,31 +105,32 @@ public class DLX {
 
     /**
      * Checks if the cell to be filled is already filled with a digit
-     * @param digit Digit
-     * @param row Row
-     * @param col Column
+     *
+     * @param digit   Digit
+     * @param row     Row
+     * @param col     Column
      * @param prefill Clues
      * @return True if already filled
      */
-    public boolean filled(int digit, int row, int col, int[][] prefill) {
+    public boolean filled(int gridN, int gridSize, int digit, int row, int col, int[][] prefill) {
         boolean filled = false;
 
         if (prefill != null) {
             for (int i = 0; i < prefill.length; i++) {
-                int d = prefill[i][0] - 1;
-                int r = prefill[i][1];
-                int c = prefill[i][2];
+                int curDigit = prefill[i][0] - 1;
+                int curRow = prefill[i][1];
+                int curCol = prefill[i][2];
 
-                int blockStartIndexCol = (c / gridSize) * gridSize;
+                int blockStartIndexCol = (curCol / gridSize) * gridSize;
                 int blockEndIndexCol = blockStartIndexCol + gridSize;
-                int blockStartIndexRow = (r / gridSize) * gridSize;
+                int blockStartIndexRow = (curRow / gridSize) * gridSize;
                 int blockEndIndexRow = blockStartIndexRow + gridSize;
 
-                if (d != digit && row == r && col == c) {
+                if (curDigit != digit && row == curRow && col == curCol) {
                     filled = true;
-                } else if ((d == digit) && (row == r || col == c) && !(row == r && col == c)) {
+                } else if ((curDigit == digit) && (row == curRow || col == curCol) && !(row == curRow && col == curCol)) {
                     filled = true;
-                } else if ((d == digit) && (row > blockStartIndexRow) && (row < blockEndIndexRow) && (col > blockStartIndexCol) && (col < blockEndIndexCol) && !(row == r && col == c)) {
+                } else if ((curDigit == digit) && (row > blockStartIndexRow) && (row < blockEndIndexRow) && (col > blockStartIndexCol) && (col < blockEndIndexCol) && !(row == curRow && col == curCol)) {
                     filled = true;
                 }
             }
@@ -135,10 +140,11 @@ public class DLX {
 
     /**
      * Creates doubly linked list from sparse matrix
+     *
      * @param matrix Sparse matrix
      * @return The root node of the list
      */
-    public ColumnNode createDoubleLinkedLists(byte[][] matrix) {
+    public ColumnNode createDoublyLinkedLists(byte[][] matrix) {
         rootNode = new ColumnNode();
 
         ColumnNode curColumn = rootNode;
@@ -147,8 +153,8 @@ public class DLX {
             curColumn.setRight(new ColumnNode());
             curColumn.getRight().setLeft(curColumn);
             curColumn = (ColumnNode) curColumn.getRight();
-            if (col < 3 * gridN * gridN) {
 
+            if (col < 3 * gridN * gridN) {
                 int digit = (col / (3 * gridN)) + 1;
                 curColumn.setNumber(digit);
 
@@ -222,9 +228,11 @@ public class DLX {
 
         for (int i = 0; i < matrix[0].length; i++) {
             Node colElement = curColumn;
+
             while (colElement.getDown() != null) {
                 colElement = colElement.getDown();
             }
+
             colElement.setDown(curColumn);
             curColumn.setUp(colElement);
             curColumn = (ColumnNode) curColumn.getRight();
@@ -235,9 +243,10 @@ public class DLX {
 
     /**
      * Searching algorithm
-     * @param k Depth
+     *
+     * @param curDepth Depth
      */
-    public void search(int k) {
+    public void search(int curDepth) {
         if (rootNode.getRight() == rootNode) {
             mapSolvedToGrid();
             return;
@@ -250,11 +259,11 @@ public class DLX {
         Node r = c.getDown();
 
         while (r != c) {
-            if (k < solutions.size()) {
-                solutions.remove(k);
+            if (curDepth < solutions.size()) {
+                solutions.remove(curDepth);
             }
 
-            solutions.add(k, r);
+            solutions.add(curDepth, r);
 
             Node j = r.getRight();
 
@@ -263,9 +272,9 @@ public class DLX {
                 j = j.getRight();
             }
 
-            search(k + 1);
+            search(curDepth + 1);
 
-            Node r2 = (Node) solutions.get(k);
+            Node r2 = (Node) solutions.get(curDepth);
 
             Node j2 = r2.getLeft();
 
@@ -328,10 +337,10 @@ public class DLX {
 
         Node curRow = columnNode.getDown();
 
-        while(!curRow.equals(columnNode)) {
+        while (!curRow.equals(columnNode)) {
             Node curNode = curRow.getRight();
 
-            while(!curNode.equals(curRow)) {
+            while (!curNode.equals(curRow)) {
                 curNode.getUp().setDown(curNode.getDown());
                 curNode.getDown().setUp(curNode.getUp());
                 curNode.getHeader().setSize(curNode.getHeader().getSize() - 1);
@@ -350,10 +359,10 @@ public class DLX {
     public void uncoverColumn(ColumnNode columnNode) {
         Node curRow = columnNode.getUp();
 
-        while(!curRow.equals(columnNode)) {
+        while (!curRow.equals(columnNode)) {
             Node curNode = curRow.getLeft();
 
-            while(!curNode.equals(curRow)) {
+            while (!curNode.equals(curRow)) {
                 curNode.getUp().setDown(curNode);
                 curNode.getDown().setUp(curNode);
                 curNode.getHeader().setSize(curNode.getHeader().getSize() + 1);
@@ -369,6 +378,7 @@ public class DLX {
 
     /**
      * Finds the column with smallest set of nodes
+     *
      * @return The column with least nodes
      */
     public ColumnNode findColumnWithSmallestSize() {
