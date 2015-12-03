@@ -1,6 +1,16 @@
 package logic;
 
+/**
+ * A class for determining if sudoku is incomplete
+ */
 public class SudokuChecker {
+
+    /**
+     * Checks if the given sudoku grid is incomplete
+     *
+     * @param grid 2-dimensional sudoku grid
+     * @return false if incomplete
+     */
     public boolean checkSolution(int[][] grid) {
         boolean[][] rows = new boolean[9][10];
         boolean[][] columns = new boolean[9][10];

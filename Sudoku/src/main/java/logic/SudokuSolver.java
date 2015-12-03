@@ -30,8 +30,7 @@ public class SudokuSolver {
 
     /**
      * Initializes the solver with sudoku grid and sets the size and size square parameters
-     *
-     * @param gridi Sudoku grid
+     * @param grid Sudoku grid
      */
     public SudokuSolver(int[][] grid) {
         size = grid[0].length / 3;

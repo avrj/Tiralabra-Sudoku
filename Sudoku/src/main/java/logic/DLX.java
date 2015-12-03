@@ -53,6 +53,8 @@ public class DLX {
     /**
      * Creates the sparse matrix from sudoku grid
      *
+     * @param gridN  Square of size
+     * @param gridSize Grid size
      * @param initialMatrix Sudoku grid
      * @return Sparse matrix
      */
@@ -106,6 +108,8 @@ public class DLX {
     /**
      * Checks if the cell to be filled is already filled with a digit
      *
+     * @param gridN  Square of size
+     * @param gridSize Grid size
      * @param digit   Digit
      * @param row     Row
      * @param col     Column
