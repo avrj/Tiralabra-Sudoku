@@ -13,7 +13,7 @@ apply plugin:'application'
 apply plugin: 'cobertura'
 apply plugin: 'checkstyle'
 
-mainClassName = "Sudoku"
+mainClassName = "gui.GUI"
 
 // In this section you declare where to find the dependencies of your project
 repositories {
@@ -52,6 +52,12 @@ cobertura {
 
 javadoc {
     destinationDir = new File("$projectDir/../dokumentaatio/javadoc")
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'gui.GUI'
+    }
 }
 
 test.finalizedBy(project.tasks.cobertura)
