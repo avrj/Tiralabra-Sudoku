@@ -1,5 +1,9 @@
 package gui;
 
+import io.FileReader;
+import logic.SudokuChecker;
+import logic.SudokuSolver;
+
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import java.awt.*;
@@ -14,6 +18,10 @@ import java.util.Random;
  * UI for sudoku
  */
 public class GUI {
+    private static JLabel checkSolution;
+    private static JTextField[][] textFields;
+    private static JButton solveSudoku;
+
     private static void createAndShowGUI() {
         JFrame frame = new JFrame("Sudoku");
 
@@ -34,14 +42,84 @@ public class GUI {
         pane.add(getGridPanel());
     }
 
+    private static void setGameStatus(boolean status) {
+        if(!status) {
+            checkSolution.setText("Unfinished");
+            checkSolution.setForeground(Color.RED);
+        } else {
+            for(int column = 0; column < 9; column++) {
+                for(int row = 0; row < 9; row++) {
+                    textFields[row][column].setEnabled(false);
+                }
+            }
+
+            checkSolution.setText("Solved");
+            checkSolution.setForeground(Color.GREEN);
+        }
+    }
+
+    private static void setGameAsSolved(long msecs) {
+            for(int column = 0; column < 9; column++) {
+                for(int row = 0; row < 9; row++) {
+                    textFields[row][column].setEnabled(false);
+                }
+            }
+
+            checkSolution.setText("Solved in " + msecs + " ms");
+            checkSolution.setForeground(Color.GREEN);
+    }
+
+    private static void restoreEmptyCells() {
+        for(int column = 0; column < 9; column++) {
+            for(int row = 0; row < 9; row++) {
+                if(textFields[row][column].isEnabled())
+                    textFields[row][column].setText("");
+            }
+        }
+    }
+
+    private static void convertGridToTextfields(int[][] grid) {
+        for(int column = 0; column < grid[0].length; column++) {
+            for(int row = 0; row < grid.length; row++) {
+                if(grid[row][column] == 0) {
+                    textFields[column][row].setText("");
+                    textFields[column][row].setEnabled(true);
+                } else {
+                    textFields[column][row].setText(Integer.toString(grid[row][column]));
+                    textFields[column][row].setEnabled(false);
+                }
+            }
+        }
+    }
+
+    private static int[][] convertTextfieldsToGrid() {
+        int[][] output = new int[9][9];
+
+        for(int column = 0; column < 9; column++) {
+            for(int row = 0; row < 9; row++) {
+                if(textFields[column][row].getText().isEmpty())
+                    output[row][column] = 0;
+                else
+                    output[row][column] = Integer.parseInt(textFields[column][row].getText());
+            }
+        }
+
+        return output;
+    }
+
     private static JComponent getButtonPanel() {
         JPanel inner = new JPanel();
 
         inner.setLayout(new GridLayout(1, 3));
 
         JButton newSudokuFromFile = new JButton("Load sudoku from file...");
-        JButton checkSolution = new JButton("Check validity");
-        JButton solveSudoku = new JButton("Solve");
+
+        checkSolution = new JLabel("", SwingConstants.CENTER);
+
+        setGameStatus(false);
+
+        solveSudoku = new JButton("Solve");
+        solveSudoku.setEnabled(false);
 
         newSudokuFromFile.addActionListener(new ActionListener() {
             @Override
@@ -57,22 +135,39 @@ public class GUI {
                     JOptionPane.showMessageDialog(null, "Selected file: " + selectedFile.getAbsolutePath());
 
                     FileReader fileReader = new FileReader(selectedFile.getAbsolutePath());
-                    JOptionPane.showMessageDialog(null, fileReader.getFileContents());
-                }
-            }
-        });
 
-        checkSolution.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null, "Väärä ratkaisu.");
+                    int[][] parsedGrid = fileReader.convertStringToSudokuGrid(fileReader.getFileContents());
+
+                    JOptionPane.showMessageDialog(null, "Loaded successfully " + parsedGrid[0].length + "x" + parsedGrid.length + " sudoku grid");
+                    solveSudoku.setEnabled(true);
+                    setGameStatus(false);
+
+                    if(parsedGrid != null) convertGridToTextfields(parsedGrid);
+                }
             }
         });
 
         solveSudoku.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                restoreEmptyCells();
+                int[][] grid = convertTextfieldsToGrid();
 
+                SudokuSolver sudokuSolver = new SudokuSolver(grid);
+
+                long timeAtStart = System.nanoTime();
+
+                sudokuSolver.solve();
+
+                long timeAtEnd = System.nanoTime();
+
+                long msecs = ((timeAtEnd - timeAtStart) / 1000000);
+
+                convertGridToTextfields(sudokuSolver.getGrid());
+
+                solveSudoku.setEnabled(false);
+
+                setGameAsSolved(msecs);
             }
         });
 
@@ -88,49 +183,67 @@ public class GUI {
 
         inner.setLayout(new GridLayout(9, 9));
 
-        for(int i = 1; i <= 9*9; i++) {
-            JTextField testi = new JTextField();
-            testi.setHorizontalAlignment(JTextField.CENTER);
-            testi.setText(Integer.toString(new Random().nextInt(9) + 1));
-            if(i % 2 == 0) {
-                testi.setEnabled(false);
-            }
-            testi.addKeyListener(new KeyListener() {
-                @Override
-                public void keyTyped(KeyEvent e) {
-                    checkInput();
-                }
+        textFields = new JTextField[9][9];
 
-                @Override
-                public void keyPressed(KeyEvent e) {
-                    checkInput();
-                }
+        for(int column = 0; column < 9; column++) {
+            for(int row = 0; row < 9; row++) {
+                textFields[row][column] = new JTextField();
+                textFields[row][column].setEnabled(false);
 
-                @Override
-                public void keyReleased(KeyEvent e) {
-                    checkInput();
-                }
+                textFields[row][column].setHorizontalAlignment(JTextField.CENTER);
 
-                private void checkInput() {
-                    int x;
-                    try {
-                        x = Integer.parseInt(testi.getText());
+                final int newRow = row;
+                final int newColumn = column;
 
-                        if(x < 0) {
-                            testi.setText(Integer.toString(Math.abs(x)));
-                        } else if(x > 9) {
-                            try {
-                                testi.setText(testi.getText(0, 1));
-                            } catch(BadLocationException e) {
-                                testi.setText("");
-                            }
-                        }
-                    } catch (NumberFormatException nfe) {
-                        testi.setText("");
+                textFields[row][column].addKeyListener(new KeyListener() {
+                    @Override
+                    public void keyTyped(KeyEvent e) {
+                        checkInput();
                     }
-                }
-            });
-            inner.add(testi);
+
+                    @Override
+                    public void keyPressed(KeyEvent e) {
+                        checkInput();
+                    }
+
+                    @Override
+                    public void keyReleased(KeyEvent e) {
+                        checkInput();
+                    }
+
+                    private void checkInput() {
+                        int[][] grid = convertTextfieldsToGrid();
+
+                        SudokuChecker sudokuChecker = new SudokuChecker();
+
+                        if(sudokuChecker.checkSolution(grid)) {
+                            solveSudoku.setEnabled(false);
+                            setGameStatus(true);
+                        }
+
+                        int x;
+                        try {
+                            x = Integer.parseInt(textFields[newRow][newColumn].getText());
+
+                            if(x < 0) {
+                                textFields[newRow][newColumn].setText(Integer.toString(Math.abs(x)));
+                            } else if(x == 0) {
+                                textFields[newRow][newColumn].setText("");
+                            } else if(x > 9) {
+                                try {
+                                    textFields[newRow][newColumn].setText(textFields[newRow][newColumn].getText(0, 1));
+                                } catch(BadLocationException e) {
+                                    textFields[newRow][newColumn].setText("");
+                                }
+                            }
+                        } catch (NumberFormatException nfe) {
+                            textFields[newRow][newColumn].setText("");
+                        }
+                    }
+                });
+
+                inner.add(textFields[row][column]);
+            }
         }
 
         return inner;

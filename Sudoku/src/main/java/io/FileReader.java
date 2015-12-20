@@ -52,13 +52,27 @@ public class FileReader {
             int row = 0;
             int column = 0;
 
-            for(int i = 0; i < str.length(); i++) {
-                output[row][column] = str.charAt(i);
-                column++;
+            int curParsedInt = 0;
 
-                if((i + 1) % 9 == 0) {
-                    row++;
-                    column = 0;
+            int curCount = 1;
+
+            for(int i = 0; i < str.length(); i++) {
+                try {
+                    curParsedInt = Integer.parseInt(str.charAt(i) + "");
+
+                    output[row][column] = curParsedInt;
+                    column++;
+
+                    if(curCount % 9 == 0) {
+                        row++;
+                        column = 0;
+                    }
+
+                    if(curCount == 81) break;
+
+                    curCount++;
+                } catch (NumberFormatException e) {
+                    continue;
                 }
             }
 
