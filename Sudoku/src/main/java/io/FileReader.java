@@ -1,4 +1,4 @@
-package gui;
+package io;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -47,11 +47,22 @@ public class FileReader {
         if(str.length() < 81)
             return null;
         else {
+            int[][] output = new int[9][9];
+
+            int row = 0;
+            int column = 0;
+
             for(int i = 0; i < str.length(); i++) {
-                    /* TODO */
+                output[row][column] = str.charAt(i);
+                column++;
+
+                if((i + 1) % 9 == 0) {
+                    row++;
+                    column = 0;
+                }
             }
 
-            return null;
+            return output;
         }
     }
 }
